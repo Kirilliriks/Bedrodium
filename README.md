@@ -1,4 +1,4 @@
 # Bedrodium
-Minecraft mod (uses FabricMC)
+Minecraft mod (for FabricMC)
 
 Small optimization by removing the invisible sides of the bedrock
