@@ -1,5 +1,6 @@
 # Bedrodium
 Minecraft mod (for FabricMC).
+Mod on modrith: https://modrinth.com/mod/bedrodium
 
 Requires Sodium.
 
