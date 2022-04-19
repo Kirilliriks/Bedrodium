@@ -1,10 +1,10 @@
 plugins {
-    id 'fabric-loom' version '0.9-SNAPSHOT'
+    id 'fabric-loom' version '0.11-SNAPSHOT'
     id 'maven-publish'
 }
 
-sourceCompatibility = "16"
-targetCompatibility = "16"
+sourceCompatibility = "17"
+targetCompatibility = "17"
 
 version = project.mod_version
 group = project.maven_group
@@ -36,7 +36,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 16
+def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
