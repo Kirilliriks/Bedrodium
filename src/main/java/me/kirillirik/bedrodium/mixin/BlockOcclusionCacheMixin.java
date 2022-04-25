@@ -15,9 +15,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockOcclusionCacheMixin {
 
     @Inject(method = "shouldDrawSide", at = @At("RETURN"), cancellable = true)
-    public void shouldDrawSide(BlockState selfState, BlockView view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> cir) {
+    public void shouldDrawSide(BlockState selfState, BlockView view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> callbackInfo) {
         if (!Bedrodium.passSide) return;
-        if (pos.getY() != -64 || facing != Direction.DOWN) return;
-        cir.setReturnValue(false);
+
+        if (facing != Direction.DOWN || Bedrodium.validY(pos.getY())) return;
+        callbackInfo.setReturnValue(false);
     }
 }

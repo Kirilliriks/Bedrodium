@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "bedrodium",
-  "version": "${version}",
+  "version": "0.2",
   "name": "Bedrodium",
-  "description": "Optimization of the -64th layer of the bedrock",
+  "description": "Optimization of the bottom layer of the bedrock",
   "authors": [
     "kirillirik"
   ],
@@ -25,7 +25,7 @@
     "minecraft": ">=1.17.1"
   },
   "custom": {
-    "modmenu": {
+    "bedrodium": {
       "parent": {
         "id": "sodium"
       }
