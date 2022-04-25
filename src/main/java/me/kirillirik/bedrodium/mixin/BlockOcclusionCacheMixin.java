@@ -17,7 +17,7 @@ public class BlockOcclusionCacheMixin {
     @Inject(method = "shouldDrawSide", at = @At("RETURN"), cancellable = true)
     public void shouldDrawSide(BlockState selfState, BlockView view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> cir) {
         if (!Bedrodium.passSide) return;
-        if (pos.getY() != 0 || facing != Direction.DOWN) return;
+        if (pos.getY() != -64 || facing != Direction.DOWN) return;
         cir.setReturnValue(false);
     }
 }
