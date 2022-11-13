@@ -8,7 +8,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
-public class Bedrodium implements ModInitializer {
+public final class Bedrodium implements ModInitializer {
 
     public static boolean passSide = true;
     private static KeyBinding keyBinding;
