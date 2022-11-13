@@ -6,8 +6,7 @@
   "mixins": [
     "BlockOcclusionCacheMixin"
   ],
-  "client": [
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
