@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
-sourceCompatibility = "17"
-targetCompatibility = "17"
+sourceCompatibility = "19"
+targetCompatibility = "19"
 
 version = project.mod_version
 group = project.maven_group
@@ -44,7 +44,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 19
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly

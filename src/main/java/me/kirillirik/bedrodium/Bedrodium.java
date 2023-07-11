@@ -10,26 +10,31 @@ import org.lwjgl.glfw.GLFW;
 
 public final class Bedrodium implements ModInitializer {
 
-    public static boolean passSide = true;
-    private static KeyBinding keyBinding;
-    private static MinecraftClient client;
+    public static boolean PASS_SIDE = true;
+    private static KeyBinding KEY_BINDING;
+    private static MinecraftClient CLIENT;
 
     @Override
     public void onInitialize() {
-        client = MinecraftClient.getInstance();
-        keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "Switch Bedrodium work",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_R,
-                "Bedrodium"
-        ));
+        CLIENT = MinecraftClient.getInstance();
+        KEY_BINDING = KeyBindingHelper.registerKeyBinding(
+                new KeyBinding(
+                        "Switch Bedrodium work",
+                        InputUtil.Type.KEYSYM,
+                        GLFW.GLFW_KEY_R,
+                        "Bedrodium"
+                )
+        );
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (!keyBinding.wasPressed()) return;
-            passSide = !passSide;
+            if (!KEY_BINDING.wasPressed()) {
+                return;
+            }
+
+            PASS_SIDE = !PASS_SIDE;
         });
     }
 
-    public static boolean validY(int y) {
-        return client.world != null && y != client.world.getBottomY();
+    public static boolean isValidHeight(int height) {
+        return CLIENT.world != null && height != CLIENT.world.getBottomY();
     }
 }
