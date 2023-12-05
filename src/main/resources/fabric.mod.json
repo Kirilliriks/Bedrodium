@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "bedrodium",
-  "version": "${project.version}",
+  "version": "${version}",
   "name": "Bedrodium",
   "description": "Optimization of the bottom layer of the bedrock",
   "authors": [
