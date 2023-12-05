@@ -1,3 +1,7 @@
 {
-  "bedrodium.site": "Modrinth"
+  "bedrodium.category": "Bedrodium",
+  "bedrodium.toggle": "Toggle Bedrodium",
+  "bedrodium.toggle.on": "Bedrodium has been enabled.",
+  "bedrodium.toggle.off": "Bedrodium has been disabled.",
+  "bedrodium.toggle.server": "Bedrodium is not allowed to work on this server."
 }
