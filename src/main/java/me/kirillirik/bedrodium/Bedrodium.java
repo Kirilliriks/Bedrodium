@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
@@ -168,6 +169,12 @@ public final class Bedrodium implements ClientModInitializer {
                         .formatted(serverDisabled ? Formatting.DARK_RED : (enabled ? Formatting.GREEN : Formatting.RED), Formatting.BOLD), false);
             });
         });
+
+        // Enable on join.
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> serverDisabled = false);
+
+        // Enable on quit.
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> serverDisabled = false);
     }
 
     /**
