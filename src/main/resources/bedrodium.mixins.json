@@ -3,10 +3,10 @@
   "minVersion": "0.8",
   "package": "me.kirillirik.bedrodium.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    "BlockOcclusionCacheMixin"
+  "client": [
+    "BlockOcclusionCacheMixin",
+    "MinecraftClientMixin"
   ],
-  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

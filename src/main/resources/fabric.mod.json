@@ -1,11 +1,14 @@
 {
   "schemaVersion": 1,
   "id": "bedrodium",
-  "version": "0.2.2",
+  "version": "${version}",
   "name": "Bedrodium",
   "description": "Optimization of the bottom layer of the bedrock",
   "authors": [
     "kirillirik"
+  ],
+  "contributors": [
+    "VidTu"
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/bedrodium",
@@ -17,9 +20,6 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "me.kirillirik.bedrodium.client.BedrodiumClient"
-    ],
-    "main": [
       "me.kirillirik.bedrodium.Bedrodium"
     ]
   },
@@ -27,15 +27,15 @@
     "bedrodium.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.21",
-    "fabric": ">=0.85.0",
-    "minecraft": ">=1.20.1",
-    "sodium": ">=0.4.10"
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": ">=1.20.2",
+    "sodium": "*"
   },
   "custom": {
     "modmenu": {
       "links": {
-        "bedrodium.site": "https://modrinth.com/mod/bedrodium"
+        "modmenu.modrinth": "https://modrinth.com/mod/bedrodium"
       }
     }
   }

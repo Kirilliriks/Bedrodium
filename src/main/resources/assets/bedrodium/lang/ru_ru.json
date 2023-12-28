@@ -1,0 +1,7 @@
+{
+  "bedrodium.category": "Bedrodium",
+  "bedrodium.toggle": "Переключить Bedrodium",
+  "bedrodium.toggle.on": "Bedrodium был включён.",
+  "bedrodium.toggle.off": "Bedrodium был выключен.",
+  "bedrodium.toggle.server": "Bedrodium'у не разрешено работать на этом сервере."
+}
