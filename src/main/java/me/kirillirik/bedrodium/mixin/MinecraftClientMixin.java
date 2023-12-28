@@ -38,12 +38,16 @@ public abstract class MinecraftClientMixin {
         if (world == null) return;
 
         // Get the dimension
-        Identifier dimension = world.getDimension().effects();
+        final Identifier dimension = world.getDimension().effects();
+
+        // Check dimension
+        final boolean overworld = dimension.equals(DimensionTypes.OVERWORLD_ID);
+        final boolean nether = dimension.equals(DimensionTypes.THE_NETHER_ID);
 
         // Hide floor in overworld and nether.
-        Bedrodium.floorY = dimension.equals(DimensionTypes.OVERWORLD_ID) || dimension.equals(DimensionTypes.THE_NETHER_ID) ? world.getDimension().minY() : -1;
+        Bedrodium.floorY = overworld || nether ? world.getDimension().minY() : -1;
 
         // Hide ceiling in nether.
-        Bedrodium.ceilingY = dimension.equals(DimensionTypes.THE_NETHER_ID) ? world.getDimension().logicalHeight() - 1 : -1;
+        Bedrodium.ceilingY = nether ? world.getDimension().logicalHeight() - 1 : -1;
     }
 }

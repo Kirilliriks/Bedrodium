@@ -7,18 +7,13 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -30,15 +25,23 @@ import org.lwjgl.glfw.GLFW;
  */
 @Environment(EnvType.CLIENT)
 public final class Bedrodium implements ClientModInitializer {
-    /**
-     * Bedrodium toggle key.
-     */
-    private static KeyBinding KEY = new KeyBinding("bedrodium.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "bedrodium.category");
 
     /**
      * Bedrodium channel.
      */
     private static final Identifier CHANNEL = new Identifier("bedrodium", "v1");
+
+    /**
+     * Camera position controller
+     */
+    public static final CameraController cameraController = new CameraController();
+
+    /**
+     * Bedrodium toggle key.
+     */
+    private static KeyBinding KEY = new KeyBinding(
+            "bedrodium.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "bedrodium.category"
+    );
 
     /**
      * Whether the mod is enabled.
@@ -59,16 +62,6 @@ public final class Bedrodium implements ClientModInitializer {
      * Current dimension ceiling Y, {@link Integer#MAX_VALUE} if none.
      */
     public static int ceilingY = Integer.MAX_VALUE;
-
-    /**
-     * Whether the camera is below floor.
-     */
-    public static boolean cameraBelowFloor = false;
-
-    /**
-     * Whether the camera is above ceiling.
-     */
-    public static boolean cameraAboveCeiling = false;
 
     @Override
     public void onInitializeClient() {
@@ -94,60 +87,15 @@ public final class Bedrodium implements ClientModInitializer {
             client.worldRenderer.reload();
 
             // Display the info.
-            client.inGameHud.setOverlayMessage(Text.translatable(enabled ? "bedrodium.toggle.on" : "bedrodium.toggle.off")
-                    .formatted(enabled ? Formatting.GREEN : Formatting.RED, Formatting.BOLD), false);
+            client.inGameHud.setOverlayMessage(
+                    Text.translatable(enabled ? "bedrodium.toggle.on" : "bedrodium.toggle.off")
+                            .formatted(enabled ? Formatting.GREEN : Formatting.RED, Formatting.BOLD),
+                    false
+            );
         });
 
         // Follow camera.
-        ClientTickEvents.END_WORLD_TICK.register(world -> {
-            // Render bedrock if camera is below or above it.
-            Vec3d camera = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-
-            // Check various configurations.
-            if (camera.y < floorY) {
-                // Below floor.
-
-                // Re-render the floor. (if wasn't below it)
-                if (!cameraBelowFloor) {
-                    cameraBelowFloor = true;
-                    renderLayers(false);
-                }
-
-                // Re-render the ceiling. (if was above it)
-                if (cameraAboveCeiling) {
-                    cameraAboveCeiling = false;
-                    renderLayers(true);
-                }
-            } else if (camera.y > ceilingY) {
-                // Above ceiling.
-
-                // Re-render the floor. (if was below it)
-                if (cameraBelowFloor) {
-                    cameraBelowFloor = false;
-                    renderLayers(false);
-                }
-
-                // Re-render the ceiling. (if wasn't above it)
-                if (!cameraAboveCeiling) {
-                    cameraAboveCeiling = true;
-                    renderLayers(true);
-                }
-            } else {
-                // In the world.
-
-                // Re-render the floor. (if was below it)
-                if (cameraBelowFloor) {
-                    cameraBelowFloor = false;
-                    renderLayers(false);
-                }
-
-                // Re-render the ceiling. (if was above it)
-                if (cameraAboveCeiling) {
-                    cameraAboveCeiling = false;
-                    renderLayers(true);
-                }
-            }
-        });
+        ClientTickEvents.END_WORLD_TICK.register(world -> cameraController.handleEndTick());
 
         // Handle networking.
         ClientPlayNetworking.registerGlobalReceiver(CHANNEL, (client, handler, buf, sender) -> {
@@ -164,9 +112,22 @@ public final class Bedrodium implements ClientModInitializer {
                 // Rerender the world.
                 client.worldRenderer.reload();
 
+                // Make info msg
+                final String msg = serverDisabled ?
+                        "bedrodium.toggle.server"
+                        :
+                        (enabled ? "bedrodium.toggle.on" : "bedrodium.toggle.off");
+
+                // Make info formatting
+                final Formatting formatting = serverDisabled ?
+                        Formatting.DARK_RED
+                        :
+                        (enabled ? Formatting.GREEN : Formatting.RED);
+
                 // Display the info.
-                client.inGameHud.setOverlayMessage(Text.translatable(serverDisabled ? "bedrodium.toggle.server" : (enabled ? "bedrodium.toggle.on" : "bedrodium.toggle.off"))
-                        .formatted(serverDisabled ? Formatting.DARK_RED : (enabled ? Formatting.GREEN : Formatting.RED), Formatting.BOLD), false);
+                client.inGameHud.setOverlayMessage(
+                        Text.translatable(msg).formatted(formatting, Formatting.BOLD), false
+                );
             });
         });
 
@@ -190,44 +151,9 @@ public final class Bedrodium implements ClientModInitializer {
 
         // Check the face.
         return switch (facing) {
-            case DOWN -> cameraBelowFloor || pos.getY() != floorY;
-            case UP -> cameraAboveCeiling || pos.getY() != ceilingY;
+            case DOWN -> cameraController.belowFloor || pos.getY() != floorY;
+            case UP -> cameraController.aboveCeiling || pos.getY() != ceilingY;
             default -> true;
         };
-    }
-
-    /**
-     * Re-renders layers at the floor or at the ceiling.
-     *
-     * @param ceiling {@code true} to re-render layers at the ceiling, {@code false} to re-render at the floor
-     */
-    private static void renderLayers(boolean ceiling) {
-        // Get the world.
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientWorld world = client.world;
-
-        // Skip if null.
-        if (world == null) return;
-
-        // Calculate the positions.
-        Vec3d camera = client.gameRenderer.getCamera().getPos();
-        int sx = ChunkSectionPos.getSectionCoord(camera.x);
-        int sy = ChunkSectionPos.getSectionCoord(ceiling ? ceilingY : floorY);
-        int sz = ChunkSectionPos.getSectionCoord(camera.z);
-
-        // Get the distance.
-        WorldRenderer worldRenderer = client.worldRenderer;
-        int dist = (int) (worldRenderer.getViewDistance() + 1);
-
-        // Schedule re-render for every block section.
-        int x1 = sx - dist;
-        int z1 = sz - dist;
-        int x2 = sx + dist;
-        int z2 = sz + dist;
-        for (int x = x1; x <= x2; x++) {
-            for (int z = z1; z <= z2; z++) {
-                 worldRenderer.scheduleBlockRender(x, sy, z);
-            }
-        }
     }
 }
