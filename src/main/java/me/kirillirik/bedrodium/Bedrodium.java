@@ -5,8 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
@@ -27,11 +25,6 @@ import org.lwjgl.glfw.GLFW;
 public final class Bedrodium implements ClientModInitializer {
 
     /**
-     * Bedrodium channel.
-     */
-    private static final Identifier CHANNEL = new Identifier("bedrodium", "v1");
-
-    /**
      * Camera position controller
      */
     public static final CameraController cameraController = new CameraController();
@@ -47,11 +40,6 @@ public final class Bedrodium implements ClientModInitializer {
      * Whether the mod is enabled.
      */
     public static boolean enabled = true;
-
-    /**
-     * Whether the mod is disabled by the server.
-     */
-    public static boolean serverDisabled = false;
 
     /**
      * Current dimension floor Y, {@link Integer#MIN_VALUE} if none.
@@ -73,13 +61,6 @@ public final class Bedrodium implements ClientModInitializer {
             // Key wasn't pressed.
             if (!KEY.wasPressed()) return;
 
-            // Mod disabled by server.
-            if (serverDisabled) {
-                client.inGameHud.setOverlayMessage(Text.translatable("bedrodium.toggle.server")
-                        .formatted(Formatting.DARK_RED, Formatting.BOLD), false);
-                return;
-            }
-
             // Toggle the mod.
             enabled = !enabled;
 
@@ -96,46 +77,6 @@ public final class Bedrodium implements ClientModInitializer {
 
         // Follow camera.
         ClientTickEvents.END_WORLD_TICK.register(world -> cameraController.handleEndTick());
-
-        // Handle networking.
-        ClientPlayNetworking.registerGlobalReceiver(CHANNEL, (client, handler, buf, sender) -> {
-            try {
-                // Listen to server.
-                serverDisabled = buf.readBoolean();
-            } catch (Throwable ignored) {
-                // Disable if unknown data. (for clarity)
-                serverDisabled = true;
-            }
-
-            // Schedule to main thread.
-            client.execute(() -> {
-                // Rerender the world.
-                client.worldRenderer.reload();
-
-                // Make info msg
-                final String msg = serverDisabled ?
-                        "bedrodium.toggle.server"
-                        :
-                        (enabled ? "bedrodium.toggle.on" : "bedrodium.toggle.off");
-
-                // Make info formatting
-                final Formatting formatting = serverDisabled ?
-                        Formatting.DARK_RED
-                        :
-                        (enabled ? Formatting.GREEN : Formatting.RED);
-
-                // Display the info.
-                client.inGameHud.setOverlayMessage(
-                        Text.translatable(msg).formatted(formatting, Formatting.BOLD), false
-                );
-            });
-        });
-
-        // Enable on join.
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> serverDisabled = false);
-
-        // Enable on quit.
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> serverDisabled = false);
     }
 
     /**
@@ -147,7 +88,7 @@ public final class Bedrodium implements ClientModInitializer {
      */
     public static boolean shouldRender(@NotNull BlockPos pos, @NotNull Direction facing) {
         // Render if not enabled.
-        if (!Bedrodium.enabled || Bedrodium.serverDisabled) return true;
+        if (!Bedrodium.enabled) return true;
 
         // Check the face.
         return switch (facing) {

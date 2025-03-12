@@ -1,7 +1,7 @@
 package me.kirillirik.bedrodium.mixin;
 
-import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockOcclusionCache;
 import me.kirillirik.bedrodium.Bedrodium;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockOcclusionCache;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -36,7 +36,7 @@ public abstract class BlockOcclusionCacheMixin {
     // Injects into head of Sodium occlusion cache check to prevent rendering.
     @Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
     public void bedrodium$shouldDrawSide$head(BlockState selfState, BlockView view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> cir) {
-        // Skip if should be rendered.
+        // Skip if layer should be rendered.
         if (Bedrodium.shouldRender(pos, facing)) return;
 
         // Skip rendering.

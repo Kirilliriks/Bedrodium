@@ -101,7 +101,7 @@ public final class CameraController {
         final int z2 = sz + dist;
         for (int x = x1; x <= x2; x++) {
             for (int z = z1; z <= z2; z++) {
-                worldRenderer.scheduleBlockRender(x, sy, z);
+                worldRenderer.scheduleChunkRender(x, sy, z);
             }
         }
     }
